@@ -12,7 +12,7 @@ import (
 const (
 	podmanBin = "podman"
 
-	nixPodmanSecretsBin = "/run/current-system/sw/bin/nix-podman-secret"
+	nixPodmanSecretsBin = "nix-podman-secret"
 )
 
 type DeletePodmanSecretFunc func(string) error
