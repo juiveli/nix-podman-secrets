@@ -13,7 +13,7 @@ import (
 func main() {
 	internal.WrapMain(func() {
 		secretId := os.Getenv("SECRET_ID")
-		lookupSecret(os.Stdout, internal.MAPPING_DIR, secretId)
+		lookupSecret(os.Stdout, os.Getenv("MAPPING_DIR"), secretId)
 	})
 }
 

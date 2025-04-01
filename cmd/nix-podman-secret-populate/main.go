@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-
 	"github.com/juiveli/nix-podman-secrets/internal"
 )
 
@@ -15,10 +14,24 @@ func main() {
 	if os.Getenv(ENV_DEBUG) == "true" {
 		debug = true
 	}
+
+	internal.initEnvVars()
+
 	internal.WrapMain(func() {
+
+		secretDir := os.Getenv("NIX_SECRET_DIR")
+		if secretDir == "" {
+			panic(fmt.Errorf("NIX_SECRET_DIR is not set"))
+		}
+		
+		mappingDir := os.Getenv("MAPPING_DIR")
+		if mappingDir == "" {
+			panic(fmt.Errorf("MAPPING_DIR is not set"))
+		}
+
 		internal.PopulatePodmanSecretsDB(
-			internal.NIX_SECRET_DIR,
-			internal.MAPPING_DIR,
+			secretDir,
+			mappingDir,
 			internal.DeletePodmanSecretImpl,
 			internal.CreatePodmanSecretImpl,
 			debug)

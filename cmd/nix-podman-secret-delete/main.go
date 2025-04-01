@@ -11,7 +11,7 @@ import (
 func main() {
 	internal.WrapMain(func() {
 		secretId := os.Getenv("SECRET_ID")
-		deleteSecret(internal.MAPPING_DIR, secretId)
+		deleteSecret(os.Getenv("MAPPING_DIR"), secretId)
 	})
 }
 
