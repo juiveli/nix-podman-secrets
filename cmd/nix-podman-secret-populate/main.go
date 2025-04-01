@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"os"
+	"fmt"
 	"github.com/juiveli/nix-podman-secrets/internal"
 )
 
@@ -15,9 +17,11 @@ func main() {
 		debug = true
 	}
 
-	internal.initEnvVars()
-
+	nonroot := flag.Bool("nonroot", false, "Force non-root usage even when run with root")
+	flag.Parse()
 	internal.WrapMain(func() {
+
+		internal.InitEnvVars(*nonroot)
 
 		secretDir := os.Getenv("NIX_SECRET_DIR")
 		if secretDir == "" {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,7 +12,10 @@ import (
 )
 
 func main() {
+	nonroot := flag.Bool("nonroot", false, "Force non-root usage even when run with root")
+	flag.Parse()
 	internal.WrapMain(func() {
+		internal.InitEnvVars(*nonroot)
 		secretId := os.Getenv("SECRET_ID")
 		lookupSecret(os.Stdout, os.Getenv("MAPPING_DIR"), secretId)
 	})

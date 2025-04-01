@@ -14,7 +14,7 @@ const (
     MAPPING_DIR_NONROOT  = "$HOME/.local/share/containers/storage/secrets/nix-mappings"
 )
 
-func initEnvVars() {
+func InitEnvVars(forceNonroot bool) {
     // Get the current user
     currentUser, err := user.Current()
     if err != nil {
@@ -24,8 +24,8 @@ func initEnvVars() {
 
     var nixSecretDir, mappingDir string
 
-    // Set paths based on user privileges
-    if currentUser.Uid == "0" { // Root user
+	// forceNonroot is a workaround, as podman secret creation pass Uid of 0 too, even when running as regular user
+    if currentUser.Uid == "0" && !forceNonroot { // Root user
         nixSecretDir = NIX_SECRET_DIR_ROOT
         mappingDir = MAPPING_DIR_ROOT
     } else { // Non-root user, expand paths
@@ -50,8 +50,6 @@ func initEnvVars() {
         fmt.Printf("Error setting MAPPING_DIR environment variable: %v\n", err)
         os.Exit(1)
     }
-
-    fmt.Printf("Environment variables set successfully:\nNIX_SECRET_DIR=%s\nMAPPING_DIR=%s\n", nixSecretDir, mappingDir)
 }
 
 

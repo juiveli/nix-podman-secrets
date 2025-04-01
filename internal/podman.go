@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -51,23 +52,39 @@ func DeletePodmanSecretImpl(secretName string) error {
 }
 
 func CreatePodmanSecretImpl(secretName string) error {
+    currentUser, err := user.Current()
+    if err != nil {
+        fmt.Printf("Error getting current user: %v\n", err)
+        os.Exit(1) // Exit if user information cannot be retrieved
+    }
+
+	driverOptsDelete := "delete=" + nixPodmanSecretsBin + "-delete"
+	driverOptsList := "list=" + nixPodmanSecretsBin + "-list"
+	driverOptsLookup := "lookup=" + nixPodmanSecretsBin + "-lookup"
+	driverOptsStore := "store=" + nixPodmanSecretsBin + "-store"
+
+	var driverOptsFull string;
+	if currentUser.Uid == "0" {
+		driverOptsFull = driverOptsDelete + "," + driverOptsList + "," + driverOptsLookup + "," + driverOptsStore 
+	} else {
+		driverOptsFull = driverOptsDelete + " --nonroot," + driverOptsList + " --nonroot," + driverOptsLookup + " --nonroot," + driverOptsStore + " --nonroot"
+	}
+
+
 	cmd := exec.Command(podmanBin,
 		"secret",
 		"create",
 		"--label", "source=nix",
 		"--driver", "shell",
-		"--driver-opts", fmt.Sprintf("delete=%s-delete,list=%s-list,lookup=%s-lookup,store=%s-store",
-			nixPodmanSecretsBin,
-			nixPodmanSecretsBin,
-			nixPodmanSecretsBin,
-			nixPodmanSecretsBin),
+		"--driver-opts", driverOptsFull,
 		secretName, "-")
 	errBuff := &bytes.Buffer{}
 	stdInBuff := bytes.NewBuffer([]byte(secretName))
 	cmd.Stdin = stdInBuff
 	cmd.Stderr = errBuff
-	err := cmd.Run()
-	if err != nil {
+
+	secretCreationError := cmd.Run()
+	if secretCreationError != nil {
 		return fmt.Errorf("failed to create secret (%s): %w", errBuff.String(), err)
 	}
 	return nil
