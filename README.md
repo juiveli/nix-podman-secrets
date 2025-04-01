@@ -22,7 +22,7 @@ and add the module to you nixosSystem module list, i.e.
         podman-host = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            inputs.nix-podman-secrets.nixosModules.default
+            inputs.nix-podman-secrets.nixosModules.nix-podman-secrets
           ]
     }
 ```

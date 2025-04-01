@@ -1,7 +1,7 @@
 {
   description = "Use nix secrets in podman";
 
-  inputs = { nixpkgs = { url = "github:nixos/nixpkgs/nixos-24.05"; }; };
+  inputs = { nixpkgs = { url = "github:nixos/nixpkgs/nixos-24.11"; }; };
 
   outputs = inputs@{ nixpkgs, self, ... }:
     let
@@ -25,7 +25,7 @@
       overlays.default = final: prev:
         (import ./overlay.nix inputs self) final prev;
 
-      nixosModules.default = (self:
+      nixosModules.nix-podman-secrets = (self:
         { lib, config, pkgs, ... }: {
 
           options.nix-podman-secrets = {

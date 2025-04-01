@@ -21,6 +21,6 @@ buildGoModule {
 
   meta = {
     description = "Simple tool for podman secrets shell driver to access nix secrets";
-    homepage = "https://github.com/dereulenspiegel/nix-podman-secrets";
+    homepage = "https://github.com/juiveli/nix-podman-secrets";
   };
 }

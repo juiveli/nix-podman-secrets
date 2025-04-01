@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/dereulenspiegel/nix-podman-secrets/internal"
+	"github.com/juiveli/nix-podman-secrets/internal"
 )
 
 const (

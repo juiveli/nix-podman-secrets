@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dereulenspiegel/nix-podman-secrets/internal"
+	"github.com/juiveli/nix-podman-secrets/internal"
 )
 
 func main() {
