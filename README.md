@@ -24,7 +24,9 @@ and add the module to you nixosSystem module list, i.e.
           modules = [
             inputs.nix-podman-secrets.nixosModules.nix-podman-secrets
           ]
+          environment.systemPackages = [nix-podman-secrets.packages.${pkgs.system}.nix-podman-secrets];
     }
+  }
 ```
 
 This will add the necessary packages and setup the activation scripts.

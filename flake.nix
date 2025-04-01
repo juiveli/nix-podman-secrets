@@ -19,7 +19,6 @@
       packages = forAllSystems (system:
         with nixpkgsFor.${system}; {
           inherit nix-podman-secrets;
-          default = nix-podman-secrets;
         });
 
       overlays.default = final: prev:
@@ -35,9 +34,6 @@
               description = "The podman package to use";
             };
           };
-
-          config.environment.systemPackages =
-            [ self.packages.${pkgs.system}.default ];
 
           config.system.activationScripts.syncNixPodmanSecrets =
             (lib.stringAfter ([
