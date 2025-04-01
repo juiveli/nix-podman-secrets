@@ -69,14 +69,29 @@ func ListNixSecrets(secretsDir string) (secretNames []string, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve secrets dir: %w", err)
 	}
+
 	secretFiles, err := os.ReadDir(secretsDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read secrets dir: %w", err)
 	}
-	for _, secretFile := range secretFiles {
-		if !secretFile.IsDir() {
-			secretNames = append(secretNames, secretFile.Name())
-		}
-	}
+    for _, secretFile := range secretFiles {
+        if secretFile.IsDir() {
+            continue // Skip directories
+        }
+
+        // Check if the file is a symlink
+        filePath := filepath.Join(secretsDir, secretFile.Name())
+        if secretFile.Type()&os.ModeSymlink != 0 {
+            realPath, err := os.Readlink(filePath)
+            if err != nil {
+                return nil, fmt.Errorf("failed to resolve symlink %s: %w", filePath, err)
+            }
+            // Extract only the name of the resolved symlink
+            secretNames = append(secretNames, filepath.Base(realPath))
+        } else {
+            // Append the name of the regular file
+            secretNames = append(secretNames, secretFile.Name())
+        }
+    }
 	return
 }
