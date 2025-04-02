@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -28,7 +29,7 @@ func listPodmanSecrets(mappingDirPath string) (secretNames []string, removedSecr
 
 	for _, secretFile := range files {
 		secretPath := filepath.Join(mappingDirPath, secretFile.Name())
-		actualSecretFile, err := filepath.EvalSymlinks(secretPath)
+		actualSecretFile, err := evaluateNextSymlink(secretPath)
 		if err != nil {
 			removedSecretIDs = append(removedSecretIDs, secretFile.Name())
 			continue
@@ -39,6 +40,27 @@ func listPodmanSecrets(mappingDirPath string) (secretNames []string, removedSecr
 	}
 	return
 }
+
+func evaluateNextSymlink(path string) (string, error) {
+    // Get file or symlink information
+    info, err := os.Lstat(path)
+    if err != nil {
+        return "", err
+    }
+
+    // Check if the path is a symlink
+    if info.Mode()&os.ModeSymlink == 0 {
+        return "", errors.New("provided path is not a symlink")
+    }
+
+    // Fetch the target of the symlink
+    nextTarget, err := os.Readlink(path)
+    if err != nil {
+        return "", err
+    }
+    return nextTarget, nil
+}
+
 
 func DeletePodmanSecretImpl(secretName string) error {
 	cmd := exec.Command(podmanBin, "secret", "rm", secretName)
