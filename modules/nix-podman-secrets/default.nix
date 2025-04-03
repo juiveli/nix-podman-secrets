@@ -31,5 +31,12 @@ in
         }/bin/nix-podman-secret-populate
     '';
 
+    config.system.activationScripts.createPodmanSecretsDir = 
+        ''
+            mkdir -p "/run/podman-secrets"
+            chmod 700 /run/podman-secrets
+        '';
+    
+
     config.environment.systemPackages = [ nix-podman-secrets ];
 }

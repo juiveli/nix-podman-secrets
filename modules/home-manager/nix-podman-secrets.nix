@@ -28,6 +28,7 @@ in
       Unit = {
         Description = "Populate podman secrets to root user";
         After = [ "sops-nix.service" ];
+        Requires = [ "sops-nix.service" ];
       };
       Service = {
         Type = "oneshot";
@@ -37,6 +38,12 @@ in
         WantedBy = ["default.target"];
       };
     };
+
+    config.home.activation.createPodmanSecretsDir = lib.hm.dag.entryAfter ["specialfs" "users" "groups" "setupSecrets"] 
+        ''
+            mkdir -p "$XDG_RUNTIME_DIR/containers/podman-secrets"
+        '';
+    
 
 
     config.home.packages = [ nix-podman-secrets ];
