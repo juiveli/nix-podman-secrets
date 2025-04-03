@@ -26,4 +26,7 @@ in
         nix-podman-secrets.outPath
     }/bin/nix-podman-secret-populate
     '';
+
+    config.home.packages = [ nix-podman-secrets ];
 }
+

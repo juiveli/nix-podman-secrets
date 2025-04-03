@@ -6,11 +6,11 @@ in
 {
 
     options.nix-podman-secrets = {
-    podmanPackage = lib.mkOption {
-        type = lib.types.package;
-        default = pkgs.podman;
-        description = "The podman package to use";
-    };
+        podmanPackage = lib.mkOption {
+            type = lib.types.package;
+            default = pkgs.podman;
+            description = "The podman package to use";
+        };
     };
 
     config.system.activationScripts.syncNixPodmanSecrets =
@@ -31,4 +31,5 @@ in
         }/bin/nix-podman-secret-populate
     '';
 
+    config.environment.systemPackages = [ nix-podman-secrets ];
 }
