@@ -8,9 +8,9 @@ import (
 )
 
 const (
-    NIX_SECRET_DIR_ROOT  = "/run/secrets"
+    NIX_SECRET_DIR_ROOT  = "/run/podman-secrets"
     MAPPING_DIR_ROOT     = "/var/lib/containers/storage/secrets/nix-mapping"
-    NIX_SECRET_DIR_NONROOT = "$XDG_RUNTIME_DIR/containers/secrets"
+    NIX_SECRET_DIR_NONROOT = "$XDG_RUNTIME_DIR/containers/podman-secrets"
     MAPPING_DIR_NONROOT  = "$HOME/.local/share/containers/storage/secrets/nix-mappings"
 )
 
@@ -33,7 +33,7 @@ func InitEnvVars(forceNonroot bool) {
         mappingDir = os.ExpandEnv(MAPPING_DIR_NONROOT)
 
         // Check if environment variables are set
-        if nixSecretDir == "$XDG_RUNTIME_DIR/containers/secrets" || mappingDir == "$HOME/.local/share/containers/storage/secrets/nix-mappings" {
+        if nixSecretDir == "$XDG_RUNTIME_DIR/containers/podman-secrets" || mappingDir == "$HOME/.local/share/containers/storage/secrets/nix-mappings" {
             fmt.Println("Error: Environment variables XDG_RUNTIME_DIR or HOME are not set.")
             os.Exit(1) // Exit if variables are not properly expanded
         }
