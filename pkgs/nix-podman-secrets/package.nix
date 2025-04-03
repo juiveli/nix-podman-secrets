@@ -1,6 +1,6 @@
-{ lib, buildGoModule }:
+{ pkgs, lib }:
 
-buildGoModule {
+pkgs.buildGoModule {
   pname = "nix-podman-secrets";
   version = "0.2.0";
 
@@ -16,8 +16,6 @@ buildGoModule {
     "cmd/nix-podman-secret-populate"
     "cmd/nix-podman-secret-store"
   ];
-
-  #outputs = [ "bin" ];
 
   meta = {
     description = "Simple tool for podman secrets shell driver to access nix secrets";

@@ -5,81 +5,37 @@
 
   outputs = inputs@{ nixpkgs, self, ... }:
     let
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      allSystems = [
+        "x86_64-linux" # 64-bit Intel/AMD Linux
+        "aarch64-linux" # 64-bit ARM Linux
+      ];
 
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
+      # Helper to provide system-specific attributes
+      forAllSystems = f: nixpkgs.lib.genAttrs allSystems (system: f {
+        pkgs = import nixpkgs { inherit system; };
+      });
 
-      nixpkgsFor = forAllSystems (system:
-        import nixpkgs {
-          inherit system;
-          overlays = [ self.overlays.default ];
-        });
     in {
 
-      packages = forAllSystems (system:
-        with nixpkgsFor.${system}; {
-          inherit nix-podman-secrets;
+        packages = forAllSystems ({ pkgs }: {
+          nix-podman-secrets = pkgs.callPackage ./pkgs/nix-podman-secrets/package.nix {};
+
         });
 
-      overlays.default = final: prev:
-        (import ./overlay.nix inputs self) final prev;
+    overlays.default = 
+      final: prev: 
+      {
+      nix-podman-secrets = final.callPackage ./pkgs/nix-podman-secrets/package.nix {};
+      };
 
-      nixosModules.nix-podman-secrets = (self:
-        { lib, config, pkgs, ... }: {
+      nixosModules = {
+        nix-podman-secrets = ./modules/nix-podman-secrets;
+        default = self.nix-podman-secrets;
+      };
 
-          options.nix-podman-secrets = {
-            podmanPackage = lib.mkOption {
-              type = lib.types.package;
-              default = pkgs.podman;
-              description = "The podman package to use";
-            };
-          };
-
-          config.system.activationScripts.syncNixPodmanSecrets =
-            (lib.stringAfter ([
-              "specialfs"
-              "users"
-              "groups"
-              "setupSecrets"
-            ])) ''
-              [ -e /run/current-system ] || echo "populating podman secrets from nix secrets"
-              PATH=$PATH:${
-                lib.makeBinPath [
-                  config.nix-podman-secrets.podmanPackage
-                  self.packages.${pkgs.system}.nix-podman-secrets
-                ]
-              } ${
-                self.packages.${pkgs.system}.nix-podman-secrets.outPath
-              }/bin/nix-podman-secret-populate
-            '';
-
-        }) self;
-
-      homeManagerModules.nix-podman-secrets  = (self:
-        { lib, config, pkgs, ... }: {
-
-          options.nix-podman-secrets = {
-            podmanPackage = lib.mkOption {
-              type = lib.types.package;
-              default = pkgs.podman;
-              description = "The podman package to use";
-            };
-          };
-
-          config.home.activation.syncNixPodmanSecrets = lib.hm.dag.entryAfter ["specialfs" "users" "groups" "setupSecrets"]
-          ''
-            echo "Populating podman secrets from nix secrets..."
-            # Optionally, check for something in your home config instead of /run/current-system
-            [ -e "$XDG_RUNTIME_DIR/containers/secrets" ] || echo "secrets directory not found, continuing..."
-            # Extend your PATH appropriately.
-            PATH=$PATH:${lib.makeBinPath [
-            config.nix-podman-secrets.podmanPackage
-            self.packages.${pkgs.system}.nix-podman-secrets
-            ]}
-            ${
-              self.packages.${pkgs.system}.nix-podman-secrets.outPath
-            }/bin/nix-podman-secret-populate
-          '';
-        }) self;
+      homeManagerModules = {
+        nix-podman-secrets = ./modules/home-manager/nix-podman-secrets.nix;
+        default = self.nix-podman-secrets;
+      };
     };
 }
