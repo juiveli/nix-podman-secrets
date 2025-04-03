@@ -56,6 +56,13 @@ nixosConfigurations = {
         path = "%r/containers/podman-secrets/exampleKeyUser";
       };
     }
+
+    The secrets are mapped to podman in a systemd user service called nix-podman-secret, so other services needing secrets must order after it:
+
+    {
+      systemd.user.services.mbsync.unitConfig.After = [ "nix-podman-secret.service" ];
+      systemd.user.services.mbsync.unitConfig.Requires = [ "nix-podman-secret.service" ];
+    }
   }
 }
 ```
@@ -92,3 +99,4 @@ podman run --secret=exampleKeyUser,type=env,target=MY_PASSWORD \
 ExampleUser
 
 ```
+
