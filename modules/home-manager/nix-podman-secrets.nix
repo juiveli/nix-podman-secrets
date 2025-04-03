@@ -26,12 +26,13 @@ in
 
     config.systemd.user.services.nix-podman-secret = {
       Unit = {
-        Description = "Populate podman secrets to root user";
+        Description = "Populate podman secrets to user";
         After = [ "sops-nix.service" ];
         Requires = [ "sops-nix.service" ];
       };
       Service = {
         Type = "oneshot";
+        Environment = "PATH=${config.nix-podman-secrets.podmanPackage}/bin:/run/wrappers/bin:${nix-podman-secrets}/bin:$PATH";
         ExecStart = serviceScript;
       };
       Install = {
