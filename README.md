@@ -57,7 +57,8 @@ nixosConfigurations = {
       };
     }
 
-    The secrets are mapped to podman in a systemd user service called nix-podman-secret, so other services needing secrets must order after it:
+    # The secrets are mapped to podman in a systemd user service called nix-podman-secret
+    # so other services needing secrets must order after it:
 
     {
       systemd.user.services.mbsync.unitConfig.After = [ "nix-podman-secret.service" ];
